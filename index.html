@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feliz Cumpleaños Papi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500&display=swap');
+
+        :root {
+            --gold: #c5a059;
+            --navy: #0f172a;
+        }
+
+        body {
+            background-color: var(--navy);
+            color: #f8fafc;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .serif {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Pantalla de carga */
+        #loading-screen {
+            position: fixed;
+            inset: 0;
+            background: #020617;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1s ease-in-out;
+        }
+
+        /* Tarjeta OPTIMIZADA */
+        .main-card {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(197, 160, 89, 0.2);
+            border-radius: 2.5rem;
+            position: relative;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+            animation: cardFloat 6s ease-in-out infinite;
+        }
+
+        @keyframes cardFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .gold-border {
+            position: absolute;
+            inset: 20px;
+            border: 1px solid rgba(197, 160, 89, 0.1);
+            border-radius: 2rem;
+            pointer-events: none;
+            animation: borderGlow 4s ease-in-out infinite;
+        }
+
+        @keyframes borderGlow {
+            0%, 100% { opacity: 0.3; box-shadow: inset 0 0 10px rgba(197, 160, 89, 0); }
+            50% { opacity: 0.8; box-shadow: inset 0 0 20px rgba(197, 160, 89, 0.2); }
+        }
+
+        .btn-elegant {
+            background: transparent;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .btn-elegant:hover:not(:disabled) {
+            background: var(--gold);
+            color: var(--navy);
+            box-shadow: 0 0 30px rgba(197, 160, 89, 0.3);
+        }
+
+        .btn-elegant:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .fade-in {
+            animation: fadeIn 2s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .ai-toast-container {
+            background: rgba(10, 15, 30, 0.6);
+            border-radius: 1.25rem;
+            border: 1px dashed var(--gold);
+            min-height: 80px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading-screen">
+        <div class="w-24 h-px bg-yellow-600/50 mb-6"></div>
+        <p id="loading-text" class="serif italic text-gold text-xl tracking-[0.2em]"></p>
+    </div>
+
+    <main id="content" class="hidden min-h-screen flex items-center justify-center p-4 md:p-8 lg:p-12 relative">
+        <canvas id="particles-canvas"></canvas>
+
+        <div class="main-card max-w-4xl w-full p-8 md:p-12 lg:p-16 text-center z-10 fade-in">
+            <div class="gold-border"></div>
+
+            <header class="mb-8">
+                <p class="text-gold tracking-[0.5em] uppercase text-sm mb-4 font-light">25 de Noviembre</p>
+                <h1 class="serif text-5xl md:text-7xl lg:text-8xl font-bold mb-4 leading-tight">¡Feliz Cumpleaños!</h1>
+                <p class="serif italic text-gold text-2xl md:text-3xl mt-2">Papi</p>
+            </header>
+
+            <div class="space-y-6 text-gray-200 leading-relaxed text-lg md:text-2xl font-light text-justify md:text-center mb-10 px-4 md:px-10">
+                <p>
+                    Hoy no solo celebramos un año más de tu vida, sino la presencia de un hombre que ha sido mi 
+                    <strong>guía constante</strong> y mi mayor ejemplo a seguir. 
+                </p>
+                <p>
+                    Admiro profundamente tu compromiso inquebrantable con nuestra familia y el lugar tan especial 
+                    que ocupas en nuestras vidas. Gracias por ese apoyo incondicional en todas las circunstancias.
+                </p>
+                <p>
+                    Es un verdadero orgullo que seas mi padre. Gracias por enseñarme con hechos lo que significa la 
+                    responsabilidad y el amor de verdad.
+                </p>
+            </div>
+
+            <div class="mb-10 space-y-6">
+                <div class="ai-toast-container p-6 md:p-8 flex items-center justify-center">
+                    <p id="ai-message" class="serif text-xl md:text-2xl italic text-yellow-100/90 leading-relaxed font-light">
+                        Haz clic abajo para recibir un brindis especial ✨
+                    </p>
+                </div>
+                
+                <button id="gemini-btn" onclick="generarBrindisIA()" class="btn-elegant px-12 md:px-20 py-5 rounded-full font-medium text-lg md:text-xl shadow-lg">
+                    Brindis Especial ✨
+                </button>
+            </div>
+
+            <footer class="mt-8">
+                <p class="text-gold/40 tracking-[0.6em] uppercase text-[10px] mb-2">Con admiración y respeto</p>
+                <p class="serif text-gold text-xl">Tu hijo</p>
+            </footer>
+        </div>
+    </main>
+
+    <script>
+        const apiKey = ""; 
+
+        async function generarBrindisIA() {
+            const btn = document.getElementById('gemini-btn');
+            const aiMsg = document.getElementById('ai-message');
+            btn.disabled = true;
+            aiMsg.innerHTML = '<span class="animate-pulse">Escribiendo algo especial...</span>';
+            
+            const systemPrompt = "Eres un hijo de 20 años que estudia computación, escribiendo un brindis muy corto (máximo 25 palabras) para el cumpleaños de su padre el 25 de noviembre. Tono maduro, cálido y elegante. No uses tecnicismos.";
+            const userQuery = "Genera un brindis corto y emotivo para mi padre.";
+
+            try {
+                let result = await callGemini(userQuery, systemPrompt);
+                aiMsg.style.opacity = '0';
+                setTimeout(() => {
+                    aiMsg.innerText = result;
+                    aiMsg.style.opacity = '1';
+                    createBurst(); 
+                }, 300);
+            } catch (error) {
+                aiMsg.innerText = "Salud por tu vida, Papi. Eres mi mayor ejemplo.";
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        async function callGemini(query, system, retries = 5) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: query }] }],
+                systemInstruction: { parts: [{ text: system }] }
+            };
+
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await response.json();
+                    return data.candidates?.[0]?.content?.parts?.[0]?.text || "Salud por tu vida, Papi.";
+                } catch (err) {
+                    if (i === retries - 1) throw err;
+                    await new Promise(r => setTimeout(r, Math.pow(2, i) * 1000));
+                }
+            }
+        }
+
+        const loadingText = document.getElementById('loading-text');
+        const screen = document.getElementById('loading-screen');
+        const content = document.getElementById('content');
+        const frases = ["Sincronizando...", "Preparando...", "Listo."];
+        let fIdx = 0;
+
+        function showLoading() {
+            if (fIdx < frases.length) {
+                loadingText.textContent = frases[fIdx];
+                fIdx++;
+                setTimeout(showLoading, 800);
+            } else {
+                screen.style.opacity = '0';
+                setTimeout(() => {
+                    screen.style.display = 'none';
+                    content.classList.remove('hidden');
+                    content.classList.add('flex');
+                    initCanvas();
+                }, 1000);
+            }
+        }
+
+        window.onload = showLoading;
+
+        const canvas = document.getElementById("particles-canvas");
+        const ctx = canvas.getContext("2d");
+        let particles = [];
+        let ambientParticles = [];
+
+        function initCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            // Crear partículas ambientales (siempre presentes)
+            for(let i = 0; i < 60; i++) {
+                ambientParticles.push(createParticle(true));
+            }
+            animate();
+        }
+
+        function createParticle(isAmbient = false) {
+            return {
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                radius: Math.random() * (isAmbient ? 1.5 : 3) + 0.5,
+                color: Math.random() > 0.5 ? '#c5a059' : '#ffffff',
+                vx: (Math.random() - 0.5) * (isAmbient ? 0.5 : 15),
+                vy: (Math.random() - 0.5) * (isAmbient ? 0.5 : 15),
+                life: isAmbient ? 1 : 1.0,
+                decay: isAmbient ? 0 : Math.random() * 0.02 + 0.01,
+                isAmbient: isAmbient
+            };
+        }
+
+        function createBurst() {
+            for (let i = 0; i < 80; i++) {
+                particles.push(createParticle(false));
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Dibujar partículas ambientales
+            ambientParticles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                if(p.x < 0) p.x = canvas.width;
+                if(p.x > canvas.width) p.x = 0;
+                if(p.y < 0) p.y = canvas.height;
+                if(p.y > canvas.height) p.y = 0;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = p.color === '#ffffff' ? 'rgba(255,255,255,0.3)' : 'rgba(197,160,89,0.3)';
+                ctx.fill();
+            });
+
+            // Dibujar partículas de ráfaga (temporales)
+            particles.forEach((p, i) => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.07; // Gravedad suave para ráfagas
+                p.life -= p.decay;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(${p.color === '#ffffff' ? '255,255,255' : '197,160,89'}, ${p.life})`;
+                ctx.fill();
+                if (p.life <= 0) particles.splice(i, 1);
+            });
+            
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            ambientParticles = [];
+            for(let i = 0; i < 60; i++) ambientParticles.push(createParticle(true));
+        });
+    </script>
+</body>
+</html>
